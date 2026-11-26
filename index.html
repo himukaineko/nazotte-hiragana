@@ -699,7 +699,7 @@ function unlockAudio() {
     if (!actx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; actx = new C(); }
     wakeAudio();
     const b = actx.createBuffer(1, 1, 22050), s = actx.createBufferSource(); s.buffer = b; s.connect(actx.destination); s.start(0);
-    if (!ttsWoke && 'speechSynthesis' in window) { ttsWoke = true; try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch (e) {} }
+    if (!ttsWoke && 'speechSynthesis' in window) { ttsWoke = true; try { const u = new SpeechSynthesisUtterance('あ'); u.volume = 0; u.lang = 'ja-JP'; speechSynthesis.speak(u); } catch (e) {} }
     /* 古い iPadOS:無音の <audio> が鳴っているあいだは、消音モードでも Web Audio が聞こえる */
     if (!navigator.audioSession && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && 'ontouchend' in document) {
       if (!keepAlive) {
@@ -733,7 +733,7 @@ let playing = null;
 function speakTTS(text) {
   try {
     if (!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
+    if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; u.rate = 0.8; u.pitch = 1.15;
     const v = speechSynthesis.getVoices().find(v => /^ja/i.test(v.lang)); if (v) u.voice = v;
     speechSynthesis.speak(u);
@@ -1237,8 +1237,10 @@ async function completeWordChar() {
   setMsg('「' + w.kana + '」が かけた!', 'good');
   setWordDoneButtons();
   $('tools').hidden = true; $('donebox').hidden = false;
-  setTimeout(() => { if (token === runToken) speak('w-' + w.id); }, 450);
-  setTimeout(() => { if (token === runToken) showWordParty(w, chal, allNow && !allBefore); }, 1300);
+  const lastCh = S.ch;
+  setTimeout(() => { if (token === runToken) speak(lastCh); }, 350);
+  setTimeout(() => { if (token === runToken) speak('w-' + w.id); }, 1100);
+  setTimeout(() => { if (token === runToken) showWordParty(w, chal, allNow && !allBefore); }, 1500);
 }
 const nextWord = w => ALLW()[ALLW().indexOf(w) + 1];
 function setWordDoneButtons() {
@@ -1261,7 +1263,7 @@ function showWordParty(w, chal, all) {
   b2.textContent = 'ことばを えらぶ'; b2.onclick = () => { close(); location.hash = 'words'; };
   $('party').hidden = false;
   if (all) sfx('fanfare');
-  setTimeout(() => { if (!$('party').hidden) speak(all ? 'zenbu' : 'yattane'); }, all ? 1100 : 700);
+  setTimeout(() => { if (!$('party').hidden) speak(all ? 'zenbu' : 'yattane'); }, all ? 1100 : w.custom ? 600 + 250 * w.chars.length : 700);
   confetti(true);
   setTimeout(() => b1.focus({ preventScroll: true }), 50);
 }
