@@ -659,11 +659,11 @@ const CKEY = 'hiragana-renshu-custom';
 let CUSTOM = [], CUSTOM_BY_ID = {};
 function setCustom(list) {
   CUSTOM = list.filter(w => w && typeof w.kana === 'string' && [...w.kana].length && [...w.kana].every(c => STROKES[c]))
-    .map((w, i) => ({ id: String(w.id), kana: w.kana, pic: CW_PICS.includes(w.pic) ? w.pic : CW_PICS[0], chars: [...w.kana], color: 'var(--r' + ((i + 3) % 10) + ')', custom: true }));
+    .map((w, i) => ({ id: String(w.id), kana: w.kana, pic: CW_PICS.includes(w.pic) ? w.pic : CW_PICS.includes(w.pic + '🏻') ? w.pic + '🏻' : CW_PICS[0], chars: [...w.kana], color: 'var(--r' + ((i + 3) % 10) + ')', custom: true }));
   CUSTOM_BY_ID = Object.fromEntries(CUSTOM.map(w => [w.id, w]));
 }
 function saveCustom() { try { localStorage.setItem(CKEY, JSON.stringify(CUSTOM.map(({ id, kana, pic }) => ({ id, kana, pic })))); } catch (e) {} }
-const CW_PICS = ['😊', '🌟', '👦', '👧', '👶', '🐱', '🐶', '🐰', '🐻', '🐼', '🦖', '🌸', '🌈', '🍎', '🚗', '⚽'];
+const CW_PICS = ['😊', '🌟', '👦🏻', '👧🏻', '👶🏻', '🐱', '🐶', '🐰', '🐻', '🐼', '🦖', '🌸', '🌈', '🍎', '🚗', '⚽'];
 try { setCustom(JSON.parse(localStorage.getItem(CKEY) || '[]') || []); } catch (e) { setCustom([]); }
 const ALLW = () => CUSTOM.concat(WORDS);
 const wordById = id => CUSTOM_BY_ID[id] || WORD_BY_ID[id];
